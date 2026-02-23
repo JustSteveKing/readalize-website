@@ -103,28 +103,68 @@
           <h2>Configuration</h2>
           <p>Readalizer loads configuration from a PHP file that returns an array. Use <code>--config</code> to point to
             a different file.</p>
-          <pre><code class="language-php">
-              <?php
+          <p>Generate a starter config with <code>vendor/bin/readalizer --init</code>. The default config file location is
+            <code>readalizer.php</code> in the current working directory.</p>
+          <pre><code class="language-php">&lt;?php
 
-use Readalizer\Readalizer\Rules\NoLongMethodsRule;
-use Readalizer\Readalizer\Rulesets\DefaultRuleset;
-use Readalizer\Readalizer\Rules\LineLengthRule;
+use Readalizer\Readalizer\Rulesets\ClassDesignRuleset;
+use Readalizer\Readalizer\Rulesets\FileStructureRuleset;
+use Readalizer\Readalizer\Rulesets\MethodDesignRuleset;
+use Readalizer\Readalizer\Rulesets\NamingRuleset;
+use Readalizer\Readalizer\Rulesets\TypeSafetyRuleset;
+use Readalizer\Readalizer\Rules\NoAssignmentInConditionRule;
+use Readalizer\Readalizer\Rules\NoBreakInFinallyRule;
+use Readalizer\Readalizer\Rules\NoChainMethodCallsRule;
+use Readalizer\Readalizer\Rules\NoComplexConditionRule;
+use Readalizer\Readalizer\Rules\NoDeepBooleanExpressionRule;
+use Readalizer\Readalizer\Rules\NoEchoRule;
+use Readalizer\Readalizer\Rules\NoElseAfterReturnRule;
+use Readalizer\Readalizer\Rules\NoEmptyCatchRule;
+use Readalizer\Readalizer\Rules\NoExitRule;
+use Readalizer\Readalizer\Rules\NoImplicitTernaryRule;
+use Readalizer\Readalizer\Rules\NoMagicStringRule;
+use Readalizer\Readalizer\Rules\NoNestedTernaryRule;
+use Readalizer\Readalizer\Rules\NoSwitchFallthroughRule;
+use Readalizer\Readalizer\Rules\NoYodaConditionsRule;
 
 return [
-    'paths' => ['src/', 'app/'],
-    'ignore' => ['vendor/', 'var/'],
+    'paths' => ['.'],
     'memory_limit' => '2G',
-    'ruleset' => [new DefaultRuleset()],
-    'rules' => [
-        new NoLongMethodsRule(maxLines: 30),
-        new LineLengthRule(maxLength: 120),
-    ],
     'cache' => [
         'enabled' => true,
         'path' => '.readalizer-cache.json',
     ],
     'baseline' => '.readalizer-baseline.json',
-    'max_violations' => 5000,
+    'ignore' => [
+        'vendor',
+        '.php-cs-fixer.dist.php',
+        'phpstan-stubs',
+        'rector.php',
+    ],
+    'ruleset' => [
+        new FileStructureRuleset(),
+        new TypeSafetyRuleset(),
+        new ClassDesignRuleset(),
+        new MethodDesignRuleset(),
+        new NamingRuleset(),
+    ],
+    'rules' => [
+        // ExpressionRuleset expanded inline (example of explicit rule config)
+        new NoNestedTernaryRule(),
+        new NoDeepBooleanExpressionRule(maxConditions: 3),
+        new NoElseAfterReturnRule(),
+        new NoEmptyCatchRule(),
+        new NoSwitchFallthroughRule(),
+        new NoBreakInFinallyRule(),
+        new NoEchoRule(),
+        new NoExitRule(),
+        new NoYodaConditionsRule(),
+        new NoImplicitTernaryRule(),
+        new NoComplexConditionRule(),
+        new NoChainMethodCallsRule(maxChain: 5),
+        new NoAssignmentInConditionRule(),
+        new NoMagicStringRule(),
+    ],
 ];</code></pre>
           <div class="key-value">
             <div><strong>paths</strong> — Default paths when CLI paths are omitted.</div>
@@ -132,7 +172,12 @@ return [
             <div><strong>rules</strong> — Rule instances applied directly.</div>
             <div><strong>ruleset</strong> — Ruleset bundles expanded into rules.</div>
             <div><strong>memory_limit</strong> — Default memory limit, overridden by <code>--memory-limit</code>.</div>
-            <div><strong>cache</strong>, <strong>baseline</strong>, <strong>max_violations</strong> — Parsed but not yet enforced.</div>
+            <div><strong>cache</strong>, <strong>baseline</strong>, <strong>max_violations</strong> — Optional keys parsed by config; <code>cache</code>/<code>baseline</code>/<code>max_violations</code> are not yet enforced in runtime.</div>
+          </div>
+          <div class="key-value">
+            <div><strong>Precedence</strong> — CLI paths override <code>paths</code> in config.</div>
+            <div><strong>Precedence</strong> — <code>--memory-limit</code> overrides <code>memory_limit</code>.</div>
+            <div><strong>Precedence</strong> — <code>--config</code> overrides the default config file location.</div>
           </div>
         </section>
 
