@@ -1,0 +1,4 @@
+processes:
+  app:
+    command: "python3 -m http.server ${FUEL_PORT_BASE:-8000}"
+    auto_restart: true
